@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}
+    我的网站|首页
+{% endblock %}
+
+{% block header_extends %}
+    <link rel="stylesheet" href="{% static 'home.css' %}">
+    <script src = "http://cdn.hcharts.cn/highcharts/highcharts.js"></script>
+{% endblock%}
+
+{% block nav_home_active %}
+    active
+{% endblock %}
+
+{% block content %}
+    <div>
+        <h3 class="home-content">面朝大海，春暖花开 </h3>
+    </div>
+    <!-- 图表容器 DOM -->
+    <div id="container" ></div>
+    <div class="hot-data">
+        <!-- 24小时内热门博客 -->
+        <h3>
+            <span class="glyphicon glyphicon-fire" aria-hidden="true"></span>
+            当日热门文章</h3>
+        <ul>
+            {% for hot_data in today_hot_data %}
+                <li><a href="{% url 'blog_detail' hot_data.content_object.pk %}"> {{ hot_data.content_object.title }} </a>
+                    [<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>:{{ hot_data.read_num }}]
+                </li>
+            {% empty %}
+                <li>暂无热门文章</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="hot-data">
+        <!-- 昨天热门博客 -->
+        <h3>
+            <span class="glyphicon glyphicon-fire" aria-hidden="true"></span>
+            昨日热门文章</h3>
+        <ul>
+            {% for hot_data in yesterday_hot_data %}
+                <li><a href="{% url 'blog_detail' hot_data.content_object.pk %}"> {{ hot_data.content_object.title }} </a>
+                    [<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>:{{ hot_data.read_num }}]
+                </li>
+
+            {% empty %}
+                <li>暂无热门文章</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="hot-data">
+        <h3>
+            <span class="glyphicon glyphicon-fire" aria-hidden="true"></span>
+            七日内热门文章</h3>
+        <ul>
+            {% for hot_data in seven_day_hot_data %}
+                <li>
+
+                    <a href="{% url 'blog_detail' hot_data.id %}"> {{ hot_data.title }} </a>
+                    [<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>:{{ hot_data.read_num_sum }}]
+                </li>
+            {% empty %}
+                <li>暂无热门文章</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script>
+        // 图表配置
+        var options = {
+            chart: { type: 'line' },
+            title: { text: null },
+            xAxis: {
+                categories:{{ dates|safe }},
+                tickmarkPlacement: 'on',
+                title: { text:'前7日访问量统计' }
+            },
+            yAxis: {
+                title:{ text: null },
+                labels:{ enabled: false},
+                gridLineDashStyle: 'Dash',
+            },
+            series:[{
+                name: '访问量',
+                data: {{ read_nums }}
+             }],
+             plotOptions:{
+                line:{
+                    dataLabels:{
+                        enabled:true
+                    }
+                }
+             },
+             legend:{ enabled: false },
+             credits:{ enabled: false },
+        };
+        var chart = Highcharts.chart('container', options);
+    </script>
+{% endblock %}
